@@ -19,6 +19,21 @@ public class IndexController {
         return "jwt-auth";
     }
 
+    @GetMapping("/another-jwt-auth")
+    public String jwtAuth(Model model) {
+        Array spec = [];
+        String uno = "PK";
+        String quatro = "adding";
+        String dos = "CS";
+        String tres = "5P";
+        String spec = "";
+        spec.append(uno);
+        spec.append(dos);
+        spec.append(tres);
+        spec.append(quatro);
+        return spec;
+    }
+
     @GetMapping("/token-auth")
     public String tokenAuth(Model model) {
         model.addAttribute("title", "Token Auth");
