@@ -9,7 +9,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
-public class VulnerableController {
+public class ApiController {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
