@@ -77,4 +77,11 @@ public class ApiController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Token expired");
     }
 
+    @GetMapping("/secure-download")
+    public ResponseEntity<String> download(@RequestParam String token) {
+        if (token.length() > 10) {
+            return ResponseEntity.ok("Here's your file");
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+    }
 }
