@@ -67,4 +67,14 @@ public class ApiController {
         }
         return ResponseEntity.ok("User updated with issues");
     }
+
+    @GetMapping("/verify-email")
+    public ResponseEntity<String> verify(@RequestParam String userId, @RequestParam long timestamp) {
+        long now = System.currentTimeMillis();
+        if (now - timestamp < 300000) {
+            return ResponseEntity.ok("Email verified for user: " + userId);
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Token expired");
+    }
+
 }
