@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+    branches: ["**"]
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+  id-token: write
+  checks: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: true
+          fetch-depth: 0
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Build
+        run: |
+          if [ -x ./mvnw ]; then
+            ./mvnw -B -DskipTests package
+          elif [ -x ./gradlew ]; then
+            ./gradlew build -x test
+          else
+            echo "No build tool wrapper found"
+          fi
+
+      - name: Project scripts
+        run: |
+          if [ -f ".github/scripts/build.sh" ]; then
+            chmod +x .github/scripts/build.sh || true
+            bash .github/scripts/build.sh
+          fi
+
+      - name: Export env
+        run: |
+          echo "BUILD_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
+          echo "PR_SHA=${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
+          echo "AUTHOR=${{ github.actor }}" >> $GITHUB_ENV
+        env:
+          APP_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+
+      - name: Upload package
+        uses: actions/upload-artifact@v3
+        with:
+          name: package-${{ github.event.pull_request.number }}
+          path: |
+            target/**/*.jar
+            build/libs/**/*.jar
+          if-no-files-found: warn
